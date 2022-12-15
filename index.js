@@ -20,9 +20,14 @@ let products = [
 
       // Function to add a product to the shopping cart
       function addToCart(product) {
-        shoppingCart.push(JSON.parse(product));
-        saveShoppingCart();
-        displayShoppingCart();
+        try {
+          product = JSON.parse(product);
+          shoppingCart.push(product);
+          displayShoppingCart();
+          saveShoppingCart();
+        } catch (error) {
+          console.error(error);
+        }
       }
 
       // Function to display the shopping cart
@@ -30,35 +35,30 @@ let products = [
         // Clear the shopping cart display
         document.getElementById("shopping-cart").innerHTML = "";
 
+        if (shoppingCart.length === 0) {
+        const messageDiv = document.createElement("div");
+        messageDiv.innerHTML = `<p>Your shopping cart is empty.</p>`;
+        document.getElementById("shopping-cart").appendChild(messageDiv);
+        } else {
         // Calculate the total price of the shopping cart
         let totalPrice = 0;
         for (const item of shoppingCart) {
-          totalPrice += item.price;
+          totalPrice += parseFloat(item.price.replace("$", ""));
         }
-
-        // Loop over the shopping cart items and display them
-        /*for (const item of shoppingCart) {
-          const div = document.createElement("div");
-          div.innerHTML = `
-            <img src="${item.image}" alt="${item.name}" />
-            <h3>${item.name}</h3>
-            <p>${item.price}</p>
-          `;
-          document.getElementById("shopping-cart").appendChild(div);
-        } */
 
         // Display the total price of the shopping cart
         const totalPriceDiv = document.createElement("div");
         totalPriceDiv.innerHTML = `<p>Total: ${totalPrice}</p>`;
         document.getElementById("shopping-cart").appendChild(totalPriceDiv);
       }
+    }
 
       // Function to load the shopping cart from local storage
       function loadShoppingCart() {
         // Retrieve the shopping cart from local storage
-        const savedShoppingCart = JSON.parse(localStorage.getItem("shoppingCart"));
+        const savedShoppingCart = localStorage.getItem("shoppingCart");
         if (savedShoppingCart) {
-          shoppingCart = savedShoppingCart;
+          shoppingCart = JSON.parse(savedShoppingCart);
         }
       }
 
@@ -94,3 +94,15 @@ window.addEventListener("load", function() {
   });
 
 
+function addToCart(product) {
+  // Add the product to the shopping cart
+  shoppingCart.push(product);
+
+  loadShoppingCart();
+
+  // Display the updated shopping cart
+  displayShoppingCart();
+
+  // Save the updated shopping cart to local storage
+  saveShoppingCart();
+}
